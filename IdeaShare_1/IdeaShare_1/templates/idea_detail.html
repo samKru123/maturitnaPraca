@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/styles.css">
+    <title>{{ idea.title }}</title>
+</head>
+<body>
+    <div class="idea-container">
+        <h1 class="idea-title">{{ idea.title }}</h1>
+        <p class="idea-description">{{ idea.description }}</p>
+        <p><strong>Kategórie:</strong> {{ idea.categories }}</p>
+    </div>
+
+    
+
+    <h2>Komentáre</h2>
+    <div class="comments-container">
+        {% if comments %}
+            {% for comment in comments %}
+            <div class="comment">
+                <strong>{{ comment.user.username }}:</strong>
+                <p>{{ comment.content }}</p>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p>Zatiaľ žiadne komentáre.</p>
+        {% endif %}
+        
+        <form class="comment-form" method="POST" action="/idea/{{ idea.id }}/comment">
+            <textarea name="content" placeholder="Napíšte váš komentár..." rows="3"></textarea>
+            <button type="submit">Pridať komentár</button>
+        </form>
+    </div>
+    
+
+    <br>
+    <a href="{{ url_for('home') }}" class="back-button">Späť na hlavnú stránku</a>
+</body>
+</html>
