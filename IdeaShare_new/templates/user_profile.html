@@ -1,0 +1,15 @@
+<h1>Profil používateľa: {{ user.username }}</h1>
+
+<h2>Vytvorené nápady:</h2>
+<ul>
+    {% for idea in ideas_created %}
+        <li><a href="{{ url_for('idea_detail', idea_id=idea.id) }}">{{ idea.title }}</a></li>
+    {% endfor %}
+</ul>
+
+<h2>Pracuje na:</h2>
+<ul>
+    {% for idea in ideas_working_on %}
+        <li><a href="{{ url_for('idea_detail', idea_id=idea.id) }}">{{ idea.title }}</a></li>
+    {% endfor %}
+</ul>
