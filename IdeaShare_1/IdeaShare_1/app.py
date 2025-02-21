@@ -1,9 +1,9 @@
-
+import os
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from flask_migrate import Migrate
-
+from werkzeug.utils import secure_filename
 
 
 
@@ -11,10 +11,21 @@ app = Flask(__name__)
 app.secret_key = 'secret_key'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///ideashare.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
+
 CATEGORIES = ["Programovanie", "Elektrotechnika", "Siete", "Iné"]
 
+UPLOAD_FOLDER = 'static/uploads'
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+
+
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+# Funkcia na kontrolu správneho formátu súboru
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 # Models
 class User(db.Model):
@@ -31,6 +42,7 @@ class Idea(db.Model):
     comments = db.relationship('Comment', backref='idea', lazy=True)  # Prepojenie na komentáre
     upvotes = db.Column(db.Integer, default=0)
     categories = db.Column(db.String(255), nullable=True)
+    image = db.Column(db.String(255), nullable=True)  # Tu bude cesta k obrázku
 
 class Comment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -106,14 +118,27 @@ def add_idea():
         description = request.form['description']
         selected_categories = request.form.getlist('categories')  # Získa vybrané kategórie
         user_id = session['user_id']
+        image_path = None
+
+        if 'image' in request.files:
+            file = request.files['image']
+            if file and allowed_file(file.filename):
+                filename = secure_filename(file.filename)
+                file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                file.save(file_path)
+                image_path = f'IdeaShare_1/static/uploads/{filename}'
+
+                
+                print(image_path)
 
         # Uloží kategórie ako reťazec oddelený čiarkami
-        new_idea = Idea(title=title, description=description,user_id=user_id, categories=",".join(selected_categories))
+        new_idea = Idea(title=title, description=description,user_id=user_id, categories=",".join(selected_categories), image=image_path)
 
         db.session.add(new_idea)
         db.session.commit()
         return redirect(url_for('home'))
 
+    print("ooookay")
     return render_template('add_idea.html', categories=CATEGORIES)
 
 @app.route('/admin')

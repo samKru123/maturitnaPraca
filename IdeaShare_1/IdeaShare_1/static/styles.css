@@ -505,3 +505,19 @@ main ul li p {
 #description{
     min-height: 150px;
 }
+
+.idea-card {
+    background: white;
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1rem;
+}
+
+.idea-image {
+    width: 100%;
+    max-width: 300px;
+    height: auto;
+    border-radius: 5px;
+    margin-top: 10px;
+}
