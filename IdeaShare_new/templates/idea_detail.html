@@ -7,82 +7,90 @@
     <title>{{ idea.title }}</title>
 </head>
 <body>
+
+    <!-- Sekcia s nápadom -->
     <div class="idea-container">
         <h1 class="idea-title">{{ idea.title }}</h1>
-        <p class="idea-description">{{ idea.description }}</p>
         <p><strong>Kategórie:</strong> {{ idea.categories }}</p>
+        <p class="idea-description">{{ idea.description }}</p>
+
         {% if idea.image %}
             <img src="{{ idea.image }}" alt="Idea Image" class="idea-image">
         {% else %}
-            <p>Ziadny obraz</p>
+            <p class="no-image-text">Žiadny obrázok</p>
         {% endif %}
-        {% set working_user_ids = idea.working_users | map(attribute='id') | list %}
+    </div>
 
-<form action="{{ url_for('work_on_idea', idea_id=idea.id) }}" method="post">
-    {% if session.get('user_id') and session.get('user_id') in working_user_ids %}
-        <button type="submit" class="btn btn-danger">Už na tom nepracujem</button>
-    {% else %}
-        <button type="submit" class="btn btn-success">Pracujem na tomto nápade</button>
-    {% endif %}
-</form>
+    <!-- Kontajner na tri sekcie pod nápadom -->
+    <div class="sections-container">
         
-        
-        <h3>Na tomto nápade pracujú:</h3>
-        <ul>
-            {% for user in idea.working_users %}
-                <li><a href="{{ url_for('user_profile', user_id=user.id) }}">{{ user.username }}</a></li>
-            {% endfor %}
-        </ul>
+        <!-- Sekcia pracujúcich používateľov -->
+        <div class="section-box">
+            <h3>Na tomto nápade pracujú:</h3>
+            <ul>
+                {% for user in idea.working_users %}
+                    <li><a href="{{ url_for('user_profile', user_id=user.id) }}">{{ user.username }}</a></li>
+                {% endfor %}
+            </ul>
 
-
-        <form action="{{ url_for('complete_idea', idea_id=idea.id) }}" method="post">
-            <label for="completion_link">Pridať odkaz na hotový projekt:</label>
-            <input type="url" name="completion_link" placeholder="Vlož URL" class="form-control">
-            <button type="submit" class="btn btn-success">Označiť ako dokončené</button>
-        </form>
-        
-        {% if idea.completed_ideas %}
-        <h3>Dokončili:</h3>
-        <ul class="completed-list">
-        {% for completion in idea.completed_ideas %}
-            <li class="completed-item">
-                <span><a href="{{ url_for('user_profile', user_id=completion.user_id) }}">#{{ completion.user.username }}</a></span>
-                {% if completion.completion_link %}
-                    <a href="{{ completion.completion_link }}" target="_blank" class="completion-btn">Zobraziť</a>
+            <form action="{{ url_for('work_on_idea', idea_id=idea.id) }}" method="post">
+                {% if session.get('user_id') and session.get('user_id') in idea.working_users | map(attribute='id') | list %}
+                    <button type="submit" class="btn btn-danger">Už na tom nepracujem</button>
+                {% else %}
+                    <button type="submit" class="btn btn-success">Pracujem na tomto nápade</button>
                 {% endif %}
-            </li>
-        {% endfor %}
-        </ul>
-        {% endif %}
+            </form>
+        </div>
 
+        <!-- Dokončenie projektu -->
+        <div class="section-box">
+            <h3>Dokončenie projektu:</h3>
+            <form action="{{ url_for('complete_idea', idea_id=idea.id) }}" method="post">
+                <input type="url" name="completion_link" placeholder="Vlož URL" class="form-control">
+                <button type="submit" class="btn btn-primary">Označiť ako dokončené</button>
+            </form>
 
-        
-        
-    </div>
+            {% if idea.completed_ideas %}
+                <h3>Dokončili:</h3>
+                <ul>
+                    {% for completion in idea.completed_ideas %}
+                        <li>
+                            <a href="{{ url_for('user_profile', user_id=completion.user_id) }}">#{{ completion.user.username }}</a>
+                            {% if completion.completion_link %}
+                                <a href="{{ completion.completion_link }}" target="_blank" class="completion-btn">Zobraziť</a>
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
 
-    
-
-    <h2>Komentáre</h2>
-    <div class="comments-container">
-        {% if comments %}
-            {% for comment in comments %}
-            <div class="comment">
-                <strong>{{ comment.user.username }}:</strong>
-                <p>{{ comment.content }}</p>
+        <!-- Sekcia komentárov -->
+        <div class="section-box">
+            <h3>Komentáre</h3>
+            <div class="comments-div">
+            {% if comments %}
+                {% for comment in comments %}
+                    <div class="comment">
+                        <strong>{{ comment.user.username }}:</strong>
+                        <p>{{ comment.content }}</p>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>Zatiaľ žiadne komentáre.</p>
+            {% endif %}
             </div>
-            {% endfor %}
-        {% else %}
-            <p>Zatiaľ žiadne komentáre.</p>
-        {% endif %}
+            
+            <form class="comment-form" method="POST" action="/idea/{{ idea.id }}/comment">
+                <textarea name="content" placeholder="Napíšte váš komentár..." rows="3"></textarea>
+                <button type="submit" class="btn btn-primary">Pridať komentár</button>
+            </form>
+        </div>
         
-        <form class="comment-form" method="POST" action="/idea/{{ idea.id }}/comment">
-            <textarea name="content" placeholder="Napíšte váš komentár..." rows="3"></textarea>
-            <button type="submit">Pridať komentár</button>
-        </form>
     </div>
-    
 
-    <br>
+    <!-- Odkaz späť na hlavnú stránku -->
     <a href="{{ url_for('home') }}" class="back-button">Späť na hlavnú stránku</a>
+
 </body>
 </html>

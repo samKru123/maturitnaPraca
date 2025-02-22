@@ -281,124 +281,225 @@ main ul li p {
     margin: 0;
 }
 
+/* Hlavný kontajner */
 
-
-/* Kontajner pre komentáre */
-.comments-container {
-    width: 100%;
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 1rem;
-}
-
-/* Každý komentár v rámiku */
-.comment {
-    background-color: rgb(165, 165, 231);
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    border-color: #3498db;
-    padding: 1rem;
-    margin-bottom: 1rem;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-/* Štýly pre text v komentári */
-.comment p {
-    margin: 0;
-    font-size: 1rem;
-    color: #333;
-}
-
-/* Nadpis alebo autor komentára */
-.comment strong {
-    display: block;
-    margin-bottom: 0.5rem;
-    font-size: 1.1rem;
-    color: #2c3e50;
-}
-
-/* Formulár na pridávanie komentára */
-.comment-form {
-    margin-top: 1.5rem;
+.container {
     display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-}
-
-.comment-form textarea {
-    width: 100%;
-    max-width: 800px;
-    padding: 0.75rem;
-    font-size: 1rem;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    resize: vertical;
-    outline: none;
-    transition: border-color 0.3s ease;
-}
-
-.comment-form textarea:focus {
-    border-color: #3498db;
-}
-
-.comment-form button {
-    align-self: flex-start;
-    padding: 0.75rem 1.5rem;
-    font-size: 1rem;
-    color: white;
-    background-color: #3498db;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-.comment-form button:hover {
-    background-color: #2980b9;
-}
-
-
-/* Kontejner pre detail nápadu */
-.idea-container {
-    width: 40%;
-    background-color: white;
+    justify-content: space-between;
+    align-items: flex-start;
     padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    margin-right: 20px;
+    gap: 20px;
+}
+.comments-container {
+    flex: 1; /* Zaberie menej miesta */
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    max-width: 30%; /* Zmenší sa */
+    overflow-y: auto;
+    max-height: 300px;
 }
 
-/* Názov nápadu */
+/* Nastavenie pomeru veľkosti medzi nápadom a komentármi */
+.idea-container {
+    width: 80%;
+    margin: 20px auto;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+/* Flexbox pre tri sekcie pod nápadom */
+.sections-wrapper {
+    display: flex;
+    justify-content: space-between;
+    width: 80%;
+    margin: 20px auto;
+    gap: 20px;
+}
+
+.section-box {
+    flex: 1;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    min-height: 200px;
+    max-height: 400px;
+    
+}
+.comments-div{
+    overflow-y: auto;
+    height: 250px;
+}
+
+
+/* Nadpis nápadu */
 .idea-title {
-    font-size: 1.8rem;
+    font-size: 28px;
     font-weight: bold;
-    color: #2c3e50;
-    margin-bottom: 10px;
+    color: #333;
 }
 
 /* Popis nápadu */
 .idea-description {
-    font-size: 1rem;
+    font-size: 16px;
     color: #555;
-    line-height: 1.5;
+    margin-bottom: 15px;
 }
 
-.back-button {
+/* Pracujúci používatelia */
+.working-section {
+    background: #eef5ff;
+    padding: 10px;
+    border-radius: 8px;
+    margin-top: 15px;
+}
+
+/* Dokončenie */
+.completion-section {
+    background: #eaf8e6;
+    padding: 10px;
+    border-radius: 8px;
+    margin-top: 15px;
+}
+
+/* Tlačidlá */
+button {
     display: inline-block;
-    padding: 0.75rem 1.5rem;
-    background-color: #3498db;
+    padding: 10px 15px;
+    margin: 10px 0;
+    font-size: 14px;
     color: white;
+    background-color: #007bff;
     border: none;
     border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+/* Dokončené projekty */
+.completed-list {
+    background: #eaf8e6;
+    padding: 10px;
+    border-radius: 8px;
+    margin-top: 15px;
+}
+
+.completed-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 0;
+}
+
+/* Sekcia komentárov */
+
+
+/* Komentár */
+.comment {
+    background: #d0ccff;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+
+/* Odkaz späť */
+.back-button {
+    display: block;
+    text-align: center;
+    margin-top: 20px;
+    color: white;
+    background-color: #007bff;
+    padding: 10px;
+    border-radius: 5px;
     text-decoration: none;
-    font-size: 1rem;
-    transition: background-color 0.3s ease;
-    max-height: 50px;
+    width: 200px;
+    height: 50px;
 }
 
 .back-button:hover {
-    background-color: #2980b9;
+    background-color: #0056b3;
 }
+
+
+
+
+/* Sekcia "Na tomto nápade pracujú" */
+.working-users {
+    background: #eef5ff;
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+.working-users ul {
+    padding-left: 20px;
+}
+
+/* Dokončené projekty */
+.completed-list {
+    background: #eaf8e6;
+    padding: 10px;
+    border-radius: 8px;
+    margin-top: 15px;
+}
+
+.completed-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 0;
+}
+
+.completion-btn {
+    padding: 5px 10px;
+    background-color: #28a745;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.completion-btn:hover {
+    background-color: #218838;
+}
+
+
+
+.comment {
+    background: #d0ccff;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+
+.comment strong {
+    color: #333;
+}
+
+.comment-form textarea {
+    width: 100%;
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+/* Odkaz "Späť na hlavnú stránku" */
+
+
+.back-button:hover {
+    background-color: #0056b3;
+}
+
 
 
 .upvote-btn {
@@ -522,10 +623,6 @@ main ul li p {
     margin-top: 10px;
 }
 
-
-
-
-
 .completed-list {
     list-style: none;
     padding: 0;
@@ -551,4 +648,28 @@ main ul li p {
 
 .completion-btn:hover {
     background-color: #0056b3;
+} 
+
+
+.sections-container {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    margin-top: 20px;
+    position: absolute;
+    width: 100%;
+    bottom: 30px;
+}
+
+
+@media (max-width: 768px) {
+    .sections-wrapper {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .section-box {
+        width: 100%;
+        margin-bottom: 15px;
+    }
 }
