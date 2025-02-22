@@ -38,6 +38,9 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(100), unique=True, nullable=False)
     password = db.Column(db.String(100), nullable=False)
+    is_admin = db.Column(db.Boolean, default=False)  # Len jeden môže mať True
+    is_blocked = db.Column(db.Boolean, default=False)  # Nový stĺpec pre blokovanie
+    comments = db.relationship('Comment', backref='user', lazy=True, cascade="all, delete")
 
 class Idea(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -45,13 +48,14 @@ class Idea(db.Model):
     #category = db.Column(db.String(100), nullable=False)
     description = db.Column(db.Text, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    comments = db.relationship('Comment', backref='idea', lazy=True)  # Prepojenie na komentáre
+    comments = db.relationship('Comment', backref='idea', lazy=True, cascade="all, delete")
     upvotes = db.Column(db.Integer, default=0)
     categories = db.Column(db.String(255), nullable=True)
     image = db.Column(db.String(255), nullable=True)  # Tu bude cesta k obrázku
     working_users = db.relationship('User', secondary=working_on, backref=db.backref('working_ideas', lazy='dynamic'))
     completed_by = db.Column(db.String(255), nullable=True)  # Uloží ID používateľov ako CSV
     completion_link = db.Column(db.String(255), nullable=True)  # Link na hotový projekt
+    completed_ideas = db.relationship('CompletedIdea', back_populates='idea', lazy=True, cascade="all, delete")
 
 class Comment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -60,7 +64,7 @@ class Comment(db.Model):
     idea_id = db.Column(db.Integer, db.ForeignKey('idea.id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
-    user = db.relationship('User', backref='comments')  # Relácia na používateľa
+    
 
 class Upvote(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -76,7 +80,7 @@ class CompletedIdea(db.Model):
     completion_link = db.Column(db.String(255), nullable=True)
 
     user = db.relationship('User', backref='completed_ideas')
-    idea = db.relationship('Idea', backref='completed_ideas')
+    idea = db.relationship('Idea', back_populates='completed_ideas')  # Opravený vzťah
 
 
 # Routes
@@ -116,10 +120,15 @@ def login():
         username = request.form['username']
         password = request.form['password']
         user = User.query.filter_by(username=username, password=password).first()
+
         if user:
+            if user.is_blocked:
+                flash('Tento účet je zablokovaný!', 'danger')
+                return redirect(url_for('login'))
             session['user_id'] = user.id
             return redirect(url_for('home'))
-        flash('Invalid credentials!')
+        
+        flash('Nesprávne prihlasovacie údaje!', 'danger')
     return render_template('login.html')
 
 @app.route('/logout')
@@ -162,8 +171,14 @@ def add_idea():
 
 @app.route('/admin')
 def admin():
-    ideas = Idea.query.all()
-    return render_template('admin.html', ideas=ideas)
+    if 'user_id' not in session:
+        flash("Musíš byť prihlásený ako admin!", "danger")
+        return redirect(url_for('login'))
+
+    users = User.query.all()  # Načítanie všetkých používateľov
+    ideas = Idea.query.all()  # Načítanie všetkých nápadov
+
+    return render_template('admin.html', users=users, ideas=ideas)
 
 @app.route('/delete_idea/<int:idea_id>')
 def delete_idea(idea_id):
@@ -286,7 +301,54 @@ def complete_idea(idea_id):
     return redirect(url_for('idea_detail', idea_id=idea_id))
 
 
+@app.route('/admin/block_user/<int:user_id>')
+def block_user(user_id):
+    if 'user_id' not in session:
+        flash("Musíš byť prihlásený ako admin!", "danger")
+        return redirect(url_for('login'))
 
+    user = User.query.get(user_id)
+    if user:
+        user.is_blocked = True
+        db.session.commit()
+        flash(f"Používateľ {user.username} bol zablokovaný.", "warning")
+    
+    return redirect(url_for('admin'))
+
+@app.route('/admin/unblock_user/<int:user_id>')
+def unblock_user(user_id):
+    if 'user_id' not in session:
+        flash("Musíš byť prihlásený ako admin!", "danger")
+        return redirect(url_for('login'))
+
+    user = User.query.get(user_id)
+    if user:
+        user.is_blocked = False
+        db.session.commit()
+        flash(f"Používateľ {user.username} bol odblokovaný.", "success")
+    
+    return redirect(url_for('admin'))
+
+
+
+
+@app.route('/delete_user/<int:user_id>', methods=['POST'])
+def delete_user(user_id):
+    if 'user_id' not in session:
+        flash("Musíš byť prihlásený ako admin!", "danger")
+        return redirect(url_for('login'))
+
+    user = User.query.get_or_404(user_id)
+
+    # Zabraňujeme adminovi, aby zmazal sám seba
+    if user.id == session['user_id']:
+        flash("Nemôžeš zmazať sám seba!", "danger")
+        return redirect(url_for('admin'))
+
+    db.session.delete(user)
+    db.session.commit()
+    flash("Používateľ bol odstránený.", "success")
+    return redirect(url_for('admin'))
 
 
 

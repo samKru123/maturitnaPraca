@@ -673,3 +673,63 @@ button:hover {
         margin-bottom: 15px;
     }
 }
+
+
+.admin-container {
+    max-width: 900px;
+    margin: 2rem auto;
+    padding: 1rem;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+table, th, td {
+    border: 1px solid #ddd;
+}
+
+th, td {
+    padding: 10px;
+    text-align: center;
+}
+
+th {
+    background: #007bff;
+    color: white;
+}
+
+.status {
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+.status.active {
+    background: #28a745;
+    color: white;
+}
+
+.status.blocked {
+    background: #dc3545;
+    color: white;
+}
+
+.btn {
+    padding: 5px 10px;
+    border-radius: 5px;
+    color: white;
+    text-decoration: none;
+}
+
+.btn-danger { background: #dc3545; }
+.btn-success { background: #28a745; }
+.btn-warning { background: #ffc107; }
+
+.btn:hover {
+    opacity: 0.8;
+}

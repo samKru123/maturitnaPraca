@@ -1,18 +1,60 @@
-
 <!DOCTYPE html>
-<html lang="en">
+<html lang="sk">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin</title>
     <link rel="stylesheet" href="/static/styles.css">
+    <title>Admin Panel</title>
 </head>
 <body>
-    <h1>Admin Panel</h1>
-    <ul>
-        {% for idea in ideas %}
-        <li>{{ idea.title }} - <a href="/delete_idea/{{ idea.id }}">Delete</a></li>
-        {% endfor %}
-    </ul>
+    <div class="admin-container">
+        <h1>Admin Panel</h1>
+
+        <h2>Správa používateľov</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Meno</th>
+                    <th>Stav</th>
+                    <th>Akcie</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td>{{ user.id }}</td>
+                    <td>{{ user.username }}</td>
+                    <td>
+                        {% if user.is_blocked %}
+                            <span class="status blocked">Blokovaný</span>
+                        {% else %}
+                            <span class="status active">Aktívny</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if user.is_blocked %}
+                            <a href="{{ url_for('unblock_user', user_id=user.id) }}" class="btn btn-success">Odblokovať</a>
+                        {% else %}
+                            <a href="{{ url_for('block_user', user_id=user.id) }}" class="btn btn-danger">Blokovať</a>
+                        {% endif %}
+                        <form action="{{ url_for('delete_user', user_id=user.id) }}" method="POST" onsubmit="return confirm('Naozaj chcete odstrániť tohto používateľa?');">
+                            <button type="submit" class="btn btn-danger">Zmazať</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <h2>Správa nápadov</h2>
+        <ul>
+            {% for idea in ideas %}
+                <li>{{ idea.title }} - 
+                    <a href="{{ url_for('delete_idea', idea_id=idea.id) }}" class="btn btn-danger" onclick="return confirm('Naozaj chcete zmazať tento nápad?');">Zmazať</a>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
 </body>
 </html>
