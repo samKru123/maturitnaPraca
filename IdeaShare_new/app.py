@@ -69,6 +69,16 @@ class Upvote(db.Model):
     # Unikátna kombinácia užívateľ & nápad – zabráni duplikátnemu hlasovaniu
     __table_args__ = (db.UniqueConstraint('user_id', 'idea_id', name='unique_user_idea'),)
 
+class CompletedIdea(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    idea_id = db.Column(db.Integer, db.ForeignKey('idea.id'), nullable=False)
+    completion_link = db.Column(db.String(255), nullable=True)
+
+    user = db.relationship('User', backref='completed_ideas')
+    idea = db.relationship('Idea', backref='completed_ideas')
+
+
 # Routes
 @app.route('/')
 def home():
@@ -243,35 +253,38 @@ def user_profile(user_id):
 
 
 
+
+
+
 @app.route('/idea/<int:idea_id>/complete', methods=['POST'])
 def complete_idea(idea_id):
     if 'user_id' not in session:
         flash('Musíš sa prihlásiť, aby si mohol označiť nápad ako dokončený.', 'danger')
         return redirect(url_for('login'))
 
-    user_id = str(session['user_id'])
+    user_id = session['user_id']
     idea = Idea.query.get_or_404(idea_id)
-    
     completion_link = request.form.get('completion_link', '').strip()
 
-    if idea.completed_by:
-        completed_users = idea.completed_by.split(',')
-    else:
-        completed_users = []
+    # Skontroluj, či už tento používateľ označil nápad ako dokončený
+    existing_completion = CompletedIdea.query.filter_by(user_id=user_id, idea_id=idea_id).first()
 
-    if user_id in completed_users:
-        flash('Tento nápad si už označil ako dokončený.', 'warning')
-    else:
-        completed_users.append(user_id)
-        idea.completed_by = ','.join(completed_users)
+    if not existing_completion:
+        completed_idea = CompletedIdea(user_id=user_id, idea_id=idea_id, completion_link=completion_link)
+        db.session.add(completed_idea)
 
-        if completion_link:
-            idea.completion_link = completion_link
+        # ⚡ Odstránenie používateľa z "pracujem na tom"
+        if user_id in [user.id for user in idea.working_users]:
+            idea.working_users.remove(User.query.get(user_id))
+            flash('Už viac nepracuješ na tomto nápade.', 'info')
 
         db.session.commit()
-        flash('Nápad bol úspešne označený ako dokončený!', 'success')
+        flash('Úspešne si označil nápad ako dokončený!', 'success')
+    else:
+        flash('Tento nápad už máš označený ako dokončený.', 'warning')
 
     return redirect(url_for('idea_detail', idea_id=idea_id))
+
 
 
 

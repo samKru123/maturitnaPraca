@@ -41,19 +41,20 @@
             <button type="submit" class="btn btn-success">Označiť ako dokončené</button>
         </form>
         
-        {% if idea.completed_by %}
-    <h3>Dokončili:</h3>
-    <ul class="completed-list">
-        {% for user_id in idea.completed_by.split(',') %}
+        {% if idea.completed_ideas %}
+        <h3>Dokončili:</h3>
+        <ul class="completed-list">
+        {% for completion in idea.completed_ideas %}
             <li class="completed-item">
-                <span>Používateľ <a href="{{ url_for('user_profile', user_id=user_id) }}">#{{ user_id }}</a></span>
-                {% if idea.completion_link %}
-                    <a href="{{ idea.completion_link }}" target="_blank" class="completion-btn">Zobraziť</a>
+                <span><a href="{{ url_for('user_profile', user_id=completion.user_id) }}">#{{ completion.user.username }}</a></span>
+                {% if completion.completion_link %}
+                    <a href="{{ completion.completion_link }}" target="_blank" class="completion-btn">Zobraziť</a>
                 {% endif %}
             </li>
         {% endfor %}
-    </ul>
-{% endif %}
+        </ul>
+        {% endif %}
+
 
         
         
