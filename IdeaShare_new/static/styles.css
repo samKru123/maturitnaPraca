@@ -521,3 +521,34 @@ main ul li p {
     border-radius: 5px;
     margin-top: 10px;
 }
+
+
+
+
+
+.completed-list {
+    list-style: none;
+    padding: 0;
+}
+
+.completed-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;  /* Priestor medzi menom a tlačidlom */
+    margin-bottom: 5px;
+}
+
+.completion-btn {
+    background-color: #007bff;
+    color: white;
+    text-decoration: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    font-size: 14px;
+    border: none;
+    cursor: pointer;
+}
+
+.completion-btn:hover {
+    background-color: #0056b3;
+}

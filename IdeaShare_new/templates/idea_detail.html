@@ -16,13 +16,15 @@
         {% else %}
             <p>Ziadny obraz</p>
         {% endif %}
-        <form action="{{ url_for('work_on_idea', idea_id=idea.id) }}" method="post">
-            {% if session.get('user_id') and session.get('user_id') in [user.id for user in idea.working_users] %}
-                <button type="submit" class="btn btn-danger">Už na tom nepracujem</button>
-            {% else %}
-                <button type="submit" class="btn btn-success">Pracujem na tomto nápade</button>
-            {% endif %}
-        </form>
+        {% set working_user_ids = idea.working_users | map(attribute='id') | list %}
+
+<form action="{{ url_for('work_on_idea', idea_id=idea.id) }}" method="post">
+    {% if session.get('user_id') and session.get('user_id') in working_user_ids %}
+        <button type="submit" class="btn btn-danger">Už na tom nepracujem</button>
+    {% else %}
+        <button type="submit" class="btn btn-success">Pracujem na tomto nápade</button>
+    {% endif %}
+</form>
         
         
         <h3>Na tomto nápade pracujú:</h3>
@@ -31,6 +33,29 @@
                 <li><a href="{{ url_for('user_profile', user_id=user.id) }}">{{ user.username }}</a></li>
             {% endfor %}
         </ul>
+
+
+        <form action="{{ url_for('complete_idea', idea_id=idea.id) }}" method="post">
+            <label for="completion_link">Pridať odkaz na hotový projekt:</label>
+            <input type="url" name="completion_link" placeholder="Vlož URL" class="form-control">
+            <button type="submit" class="btn btn-success">Označiť ako dokončené</button>
+        </form>
+        
+        {% if idea.completed_by %}
+    <h3>Dokončili:</h3>
+    <ul class="completed-list">
+        {% for user_id in idea.completed_by.split(',') %}
+            <li class="completed-item">
+                <span>Používateľ <a href="{{ url_for('user_profile', user_id=user_id) }}">#{{ user_id }}</a></span>
+                {% if idea.completion_link %}
+                    <a href="{{ idea.completion_link }}" target="_blank" class="completion-btn">Zobraziť</a>
+                {% endif %}
+            </li>
+        {% endfor %}
+    </ul>
+{% endif %}
+
+        
         
     </div>
 

@@ -50,6 +50,8 @@ class Idea(db.Model):
     categories = db.Column(db.String(255), nullable=True)
     image = db.Column(db.String(255), nullable=True)  # Tu bude cesta k obrázku
     working_users = db.relationship('User', secondary=working_on, backref=db.backref('working_ideas', lazy='dynamic'))
+    completed_by = db.Column(db.String(255), nullable=True)  # Uloží ID používateľov ako CSV
+    completion_link = db.Column(db.String(255), nullable=True)  # Link na hotový projekt
 
 class Comment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -238,6 +240,38 @@ def user_profile(user_id):
     ideas_working_on = user.working_ideas  # Many-to-Many vzťah
 
     return render_template('user_profile.html', user=user, ideas_created=ideas_created, ideas_working_on=ideas_working_on)
+
+
+
+@app.route('/idea/<int:idea_id>/complete', methods=['POST'])
+def complete_idea(idea_id):
+    if 'user_id' not in session:
+        flash('Musíš sa prihlásiť, aby si mohol označiť nápad ako dokončený.', 'danger')
+        return redirect(url_for('login'))
+
+    user_id = str(session['user_id'])
+    idea = Idea.query.get_or_404(idea_id)
+    
+    completion_link = request.form.get('completion_link', '').strip()
+
+    if idea.completed_by:
+        completed_users = idea.completed_by.split(',')
+    else:
+        completed_users = []
+
+    if user_id in completed_users:
+        flash('Tento nápad si už označil ako dokončený.', 'warning')
+    else:
+        completed_users.append(user_id)
+        idea.completed_by = ','.join(completed_users)
+
+        if completion_link:
+            idea.completion_link = completion_link
+
+        db.session.commit()
+        flash('Nápad bol úspešne označený ako dokončený!', 'success')
+
+    return redirect(url_for('idea_detail', idea_id=idea_id))
 
 
 
