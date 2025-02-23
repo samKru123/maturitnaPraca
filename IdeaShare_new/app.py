@@ -39,6 +39,7 @@ class User(db.Model):
     username = db.Column(db.String(100), unique=True, nullable=False)
     password = db.Column(db.String(100), nullable=False)
     is_admin = db.Column(db.Boolean, default=False)  # Len jeden môže mať True
+    is_category_admin = db.Column(db.Boolean, default=False)
     is_blocked = db.Column(db.Boolean, default=False)  # Nový stĺpec pre blokovanie
     comments = db.relationship('Comment', backref='user', lazy=True, cascade="all, delete")
 
@@ -184,6 +185,12 @@ def admin():
     if 'user_id' not in session:
         flash("Musíš byť prihlásený ako admin!", "danger")
         return redirect(url_for('login'))
+
+    user = User.query.get(session['user_id'])
+
+    if not user or not user.is_admin:
+        flash("Nemáš oprávnenie na správu kategórií!", "danger")
+        return redirect(url_for('home'))
 
     users = User.query.all()  # Načítanie všetkých používateľov
     ideas = Idea.query.all()  # Načítanie všetkých nápadov
@@ -366,13 +373,15 @@ def delete_user(user_id):
 @app.route('/admin/categories', methods=['GET', 'POST'])
 def manage_categories():
     if 'user_id' not in session:
-        flash("Musíš byť prihlásený ako admin!", "danger")
+        flash("Musíš byť prihlásený!", "danger")
         return redirect(url_for('login'))
 
     user = User.query.get(session['user_id'])
-    if not user.is_admin:
-        flash("Nemáš oprávnenie na túto akciu!", "danger")
-        return redirect(url_for('home'))
+
+    # Skontrolujeme, či je používateľ category_admin, ak nie, presmerujeme ho
+    if not user or not user.is_category_admin:
+        flash("Nemáš oprávnenie na správu kategórií!", "danger")
+        return redirect(url_for('home'))  # Pošleme ho na hlavnú stránku
 
     if request.method == 'POST':
         category_name = request.form['category_name'].strip()
@@ -389,13 +398,26 @@ def manage_categories():
     categories = Category.query.all()
     return render_template('admin_categories.html', categories=categories)
 
+
 @app.route('/admin/delete_category/<int:category_id>', methods=['POST'])
 def delete_category(category_id):
+    if 'user_id' not in session:
+        flash("Musíš byť prihlásený!", "danger")
+        return redirect(url_for('login'))
+
+    user = User.query.get(session['user_id'])
+
+    # Ochrana: Len category_admin môže mazať kategórie
+    if not user or not user.is_category_admin:
+        flash("Nemáš oprávnenie odstraňovať kategórie!", "danger")
+        return redirect(url_for('home'))
+
     category = Category.query.get_or_404(category_id)
     db.session.delete(category)
     db.session.commit()
     flash("Kategória bola odstránená.", "success")
     return redirect(url_for('manage_categories'))
+
 
 
 
