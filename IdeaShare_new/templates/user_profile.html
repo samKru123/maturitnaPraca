@@ -1,16 +1,54 @@
-<h1>Profil používateľa: {{ user.username }}</h1>
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/styles.css">
+    <title>Profil používateľa - {{ user.username }}</title>
+</head>
+<body>
+    <div class="profile-container">
+        <h1>Profil používateľa: <span class="username">{{ user.username }}</span></h1>
 
-<h2>Vytvorené nápady:</h2>
-<ul>
-    {% for idea in ideas_created %}
-        <li><a href="{{ url_for('idea_detail', idea_id=idea.id) }}">{{ idea.title }}</a></li>
-    {% endfor %}
-</ul>
+        <div class="profile-sections">
+            <!-- Sekcia vytvorených nápadov -->
+            <div class="profile-section">
+                <h2>💡 Vytvorené nápady</h2>
+                {% if ideas_created %}
+                    <ul class="idea-list">
+                        {% for idea in ideas_created %}
+                            <li>
+                                <a href="{{ url_for('idea_detail', idea_id=idea.id) }}" class="idea-link">
+                                    {{ idea.title }}
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="empty-message">Používateľ zatiaľ nevytvoril žiadne nápady.</p>
+                {% endif %}
+            </div>
 
-<h2>Pracuje na:</h2>
-<ul>
-    {% for idea in ideas_working_on %}
-        <li><a href="{{ url_for('idea_detail', idea_id=idea.id) }}">{{ idea.title }}</a></li>
-    {% endfor %}
-</ul>
-<a href="{{ url_for('home') }}" class="back-button">Späť na hlavnú stránku</a>
+            <!-- Sekcia nápadov, na ktorých pracuje -->
+            <div class="profile-section">
+                <h2>🛠️ Pracuje na</h2>
+                {% if ideas_working_on %}
+                    <ul class="idea-list">
+                        {% for idea in ideas_working_on %}
+                            <li>
+                                <a href="{{ url_for('idea_detail', idea_id=idea.id) }}" class="idea-link">
+                                    {{ idea.title }}
+                                </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="empty-message">Používateľ momentálne nepracuje na žiadnych nápadoch.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <a href="{{ url_for('home') }}" class="back-button">⬅️ Späť na hlavnú stránku</a>
+    </div>
+</body>
+</html>

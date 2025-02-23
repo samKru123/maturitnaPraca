@@ -78,7 +78,7 @@ header a:hover {
 .current-category {
     position: fixed;
     top: 1rem;
-    left: 50%;
+    left: 55%;
     transform: translateX(-50%);
     background-color: #ecf0f1;
     color: #2c3e50;
@@ -231,7 +231,7 @@ main ul li p {
 }
 /* Searchbar - Centrálny zarovnávací kontajner */
 .searchbar {
-    
+    margin-bottom: 20px;
     display: flex; /* Aktivácia Flexboxu */
     justify-content: center; /* Horizontálne vycentrovanie */
     align-items: center; /* Vertikálne vycentrovanie */
@@ -720,6 +720,7 @@ th {
 }
 
 .btn {
+    margin-top: 20px;
     padding: 5px 10px;
     border-radius: 5px;
     color: white;
@@ -732,4 +733,79 @@ th {
 
 .btn:hover {
     opacity: 0.8;
+}
+
+
+.profile-container {
+    max-width: 800px;
+    margin: 3rem auto;
+    padding: 2rem;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.username {
+    color: #3498db;
+    font-weight: bold;
+}
+
+.profile-sections {
+    display: flex;
+    justify-content: space-between;
+    gap: 2rem;
+}
+
+.profile-section {
+    flex: 1;
+    background-color: #f9f9f9;
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+    font-size: 1.5rem;
+    color: #2c3e50;
+}
+
+.idea-list {
+    list-style: none;
+    padding: 0;
+}
+
+.idea-list li {
+    margin: 0.5rem 0;
+}
+
+.idea-link {
+    text-decoration: none;
+    color: #007bff;
+    font-weight: bold;
+}
+
+.idea-link:hover {
+    text-decoration: underline;
+}
+
+.empty-message {
+    color: #888;
+    font-style: italic;
+}
+
+/*.back-button {
+    display: inline-block;
+    margin-top: 2rem;
+    padding: 0.75rem 1.5rem;
+    background-color: #3498db;
+    color: white;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background 0.3s;
+}*/
+
+.back-button:hover {
+    background-color: #217dbb;
 }
