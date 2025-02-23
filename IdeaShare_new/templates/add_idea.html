@@ -25,10 +25,11 @@
             <div class="form-group">
                 <label>Kategórie:</label>
                 <div class="checkbox-group">
-                    <label><input type="checkbox" name="categories" value="Programovanie"> Programovanie</label>
-                    <label><input type="checkbox" name="categories" value="Elektrotechnika"> Elektrotechnika</label>
-                    <label><input type="checkbox" name="categories" value="Siete"> Siete</label>
-                    <label><input type="checkbox" name="categories" value="Iné"> Iné</label>
+                    {% for category in categories %}
+                    <label>
+                        <input type="checkbox" name="categories" value="{{ category.name }}"> {{ category.name }}
+                    </label>
+                    {% endfor %}
                 </div>
             </div>
             <div class="form-group">

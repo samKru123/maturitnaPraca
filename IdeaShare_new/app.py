@@ -149,8 +149,9 @@ def logout():
 @app.route('/add_idea', methods=['GET', 'POST'])
 def add_idea():
     if 'user_id' not in session:
-        flash('You must be logged in to add an idea.')
+        flash('Musíš byť prihlásený na pridanie nápadu.', 'danger')
         return redirect(url_for('login'))
+
     if request.method == 'POST':
         title = request.form['title']
         description = request.form['description']
@@ -166,18 +167,17 @@ def add_idea():
                 file.save(file_path)
                 image_path = f'IdeaShare_1/static/uploads/{filename}'
 
-                
-                print(image_path)
-
         # Uloží kategórie ako reťazec oddelený čiarkami
-        new_idea = Idea(title=title, description=description,user_id=user_id, categories=",".join(selected_categories), image=image_path)
+        new_idea = Idea(title=title, description=description, user_id=user_id, categories=",".join(selected_categories), image=image_path)
 
         db.session.add(new_idea)
         db.session.commit()
         return redirect(url_for('home'))
 
-    print("ooookay")
-    return render_template('add_idea.html', categories=CATEGORIES)
+    # Načíta aktuálne kategórie z databázy
+    categories = Category.query.all()
+    return render_template('add_idea.html', categories=categories)
+
 
 @app.route('/admin')
 def admin():
