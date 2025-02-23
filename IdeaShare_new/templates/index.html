@@ -16,8 +16,7 @@
         <ul>
             <li><a href="/" {% if not selected_category %}class="active"{% endif %}><i class="fas fa-lightbulb"></i> All Ideas</a></li>
             {% for category in categories %}
-            <li><a href="/?category={{ category }}" {% if selected_category == category %}class="active"{% endif %}>
-                <i class="fas fa-tag"></i> {{ category }}</a></li>
+            <li><a href="{{ url_for('home', category=category.name) }}">{{ category.name }}</a></li>
             {% endfor %}
             <li><a href="/add_idea"><i class="fas fa-plus-circle"></i> Add Idea</a></li>
             {% if session.get('user_id') %}

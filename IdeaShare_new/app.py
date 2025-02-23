@@ -83,10 +83,16 @@ class CompletedIdea(db.Model):
     idea = db.relationship('Idea', back_populates='completed_ideas')  # Opravený vzťah
 
 
+class Category(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), unique=True, nullable=False)
+
+
+
 # Routes
 @app.route('/')
 def home():
-    categories = ['Elektrotechnika', 'Programovanie', 'Siete', 'Iné']
+    categories = Category.query.all()
     selected_category = request.args.get('category')
     search_query = request.args.get('search', '')
 
@@ -99,7 +105,11 @@ def home():
         ideas = ideas.filter(Idea.title.contains(search_query) | Idea.description.contains(search_query))
 
     #ideas = ideas.all()
-    return render_template('index.html', ideas=ideas, categories=CATEGORIES, selected_category=selected_category)
+    return render_template('index.html', ideas=ideas, categories=categories, selected_category=selected_category)
+
+
+
+
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -352,8 +362,47 @@ def delete_user(user_id):
 
 
 
+
+@app.route('/admin/categories', methods=['GET', 'POST'])
+def manage_categories():
+    if 'user_id' not in session:
+        flash("Musíš byť prihlásený ako admin!", "danger")
+        return redirect(url_for('login'))
+
+    user = User.query.get(session['user_id'])
+    if not user.is_admin:
+        flash("Nemáš oprávnenie na túto akciu!", "danger")
+        return redirect(url_for('home'))
+
+    if request.method == 'POST':
+        category_name = request.form['category_name'].strip()
+        if category_name:
+            existing_category = Category.query.filter_by(name=category_name).first()
+            if not existing_category:
+                new_category = Category(name=category_name)
+                db.session.add(new_category)
+                db.session.commit()
+                flash(f'Kategória "{category_name}" bola pridaná.', 'success')
+            else:
+                flash("Táto kategória už existuje!", 'warning')
+
+    categories = Category.query.all()
+    return render_template('admin_categories.html', categories=categories)
+
+@app.route('/admin/delete_category/<int:category_id>', methods=['POST'])
+def delete_category(category_id):
+    category = Category.query.get_or_404(category_id)
+    db.session.delete(category)
+    db.session.commit()
+    flash("Kategória bola odstránená.", "success")
+    return redirect(url_for('manage_categories'))
+
+
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
     app.run(debug=True)
     
+
+
