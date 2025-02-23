@@ -419,6 +419,54 @@ def delete_category(category_id):
     return redirect(url_for('manage_categories'))
 
 
+@app.route('/delete_own_idea/<int:idea_id>', methods=['POST'])
+def delete_own_idea(idea_id):
+    if 'user_id' not in session:
+        flash("Musíte byť prihlásený!", "danger")
+        return redirect(url_for('login'))
+
+    idea = Idea.query.get_or_404(idea_id)
+
+    # Skontrolujeme, či používateľ vlastní nápad
+    if session['user_id'] != idea.user_id:
+        flash("Nemôžete zmazať nápad, ktorý vám nepatrí!", "danger")
+        return redirect(url_for('home'))
+
+    # Zmažeme nápad aj s komentármi
+    Comment.query.filter_by(idea_id=idea.id).delete()
+    db.session.delete(idea)
+    db.session.commit()
+    
+    flash("Váš nápad bol úspešne zmazaný!", "success")
+    return redirect(url_for('home'))
+
+@app.route('/edit_own_idea/<int:idea_id>', methods=['GET', 'POST'])
+def edit_own_idea(idea_id):
+    if 'user_id' not in session:
+        flash("Musíte byť prihlásený!", "danger")
+        return redirect(url_for('login'))
+
+    idea = Idea.query.get_or_404(idea_id)
+
+    # Skontrolujeme, či používateľ je vlastníkom nápadu
+    if session['user_id'] != idea.user_id:
+        flash("Nemôžete upraviť nápad, ktorý vám nepatrí!", "danger")
+        return redirect(url_for('home'))
+
+    if request.method == 'POST':
+        idea.title = request.form['title']
+        idea.description = request.form['description']
+        selected_categories = request.form.getlist('categories')
+        
+        # Aktualizácia kategórií
+        idea.categories = ",".join(selected_categories)
+
+        db.session.commit()
+        flash("Nápad bol úspešne upravený!", "success")
+        return redirect(url_for('idea_detail', idea_id=idea.id))
+
+    categories = Category.query.all()
+    return render_template('edit_idea.html', idea=idea, categories=categories)
 
 
 if __name__ == '__main__':

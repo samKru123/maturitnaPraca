@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/styles.css">
+    <title>Upraviť nápad</title>
+</head>
+<body>
+    <div class="form-container">
+        <h1>Upraviť nápad</h1>
+        <form method="POST">
+            <label for="title">Názov nápadu:</label>
+            <input type="text" name="title" value="{{ idea.title }}" required>
+
+            <label for="description">Popis:</label>
+            <textarea name="description" required>{{ idea.description }}</textarea>
+
+            <label for="categories">Kategórie:</label>
+            <div class="checkbox-group">
+                {% for category in categories %}
+                    <label>
+                        <input type="checkbox" name="categories" value="{{ category.name }}"
+                        {% if category.name in idea.categories.split(',') %} checked {% endif %}>
+                        {{ category.name }}
+                    </label>
+                {% endfor %}
+            </div>
+
+            <button type="submit" class="btn-submit">Uložiť zmeny</button>
+        </form>
+
+        <a href="{{ url_for('idea_detail', idea_id=idea.id) }}" class="back-button">Späť</a>
+    </div>
+</body>
+</html>

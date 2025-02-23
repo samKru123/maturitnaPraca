@@ -90,7 +90,15 @@
     </div>
 
     <!-- Odkaz späť na hlavnú stránku -->
+     <div>
     <a href="{{ url_for('home') }}" class="back-button">Späť na hlavnú stránku</a>
+    {% if session.get('user_id') == idea.user_id %}
+    <a href="{{ url_for('edit_own_idea', idea_id=idea.id) }}" class="btn btn-warning">Upraviť</a>
+    <form action="{{ url_for('delete_own_idea', idea_id=idea.id) }}" method="POST" style="display:inline;">
+        <button type="submit" class="btn btn-danger" onclick="return confirm('Naozaj chcete zmazať tento nápad?');">Zmazať</button>
+    </form>
+{% endif %}
+</div>
 
 </body>
 </html>
