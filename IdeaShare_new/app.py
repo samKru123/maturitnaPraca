@@ -211,7 +211,8 @@ def delete_idea(idea_id):
 def idea_detail(idea_id):
     idea = Idea.query.get_or_404(idea_id)
     comments = Comment.query.filter_by(idea_id=idea_id).all()
-    return render_template('idea_detail.html', idea=idea, comments=comments)
+    completed_user_ids = [completion.user_id for completion in idea.completed_ideas]
+    return render_template('idea_detail.html', idea=idea, comments=comments, completed_user_ids=completed_user_ids)
 
 
 @app.route('/idea/<int:idea_id>/comment', methods=['POST'])
@@ -470,6 +471,25 @@ def edit_own_idea(idea_id):
 
     categories = Category.query.all()
     return render_template('edit_idea.html', idea=idea, categories=categories)
+
+
+@app.route('/idea/<int:idea_id>/remove_completion', methods=['POST'])
+def remove_completion(idea_id):
+    if 'user_id' not in session:
+        flash('Musíte byť prihlásený na zrušenie dokončenia nápadu.', 'danger')
+        return redirect(url_for('login'))
+
+    user_id = session['user_id']
+    completed_idea = CompletedIdea.query.filter_by(user_id=user_id, idea_id=idea_id).first()
+
+    if completed_idea:
+        db.session.delete(completed_idea)
+        db.session.commit()
+        flash('Zrušili ste dokončenie nápadu.', 'success')
+    else:
+        flash('Nemôžete zrušiť dokončenie, pretože ste ho neoznačili ako dokončené.', 'warning')
+
+    return redirect(url_for('idea_detail', idea_id=idea_id))
 
 
 if __name__ == '__main__':

@@ -47,10 +47,17 @@
         <!-- Dokončenie projektu -->
         <div class="section-box">
             <h3>Dokončenie projektu:</h3>
-            <form action="{{ url_for('complete_idea', idea_id=idea.id) }}" method="post">
-                <input type="url" name="completion_link" placeholder="Vlož URL" class="form-control">
-                <button type="submit" class="btn btn-primary">Označiť ako dokončené</button>
+            <form action="{% if session.get('user_id') in completed_user_ids %}{{ url_for('remove_completion', idea_id=idea.id) }}{% else %}{{ url_for('complete_idea', idea_id=idea.id) }}{% endif %}" method="post">
+                <input type="url" name="completion_link" placeholder="Vlož URL" class="form-control" {% if session.get('user_id') in completed_user_ids %}hidden{% endif %}>
+                <button type="submit" class="btn {% if session.get('user_id') in completed_user_ids %}btn-danger{% else %}btn-success{% endif %}">
+                    {% if session.get('user_id') in completed_user_ids %}
+                        ❌ Zrušiť dokončenie
+                    {% else %}
+                        ✅ Označiť ako dokončené
+                    {% endif %}
+                </button>
             </form>
+            
 
             {% if idea.completed_ideas %}
                 <h3>Dokončili:</h3>
