@@ -137,6 +137,8 @@ def login():
                 flash('Tento účet je zablokovaný!', 'danger')
                 return redirect(url_for('login'))
             session['user_id'] = user.id
+            session['is_admin'] = user.is_admin
+            session['is_category_admin'] = user.is_category_admin
             return redirect(url_for('home'))
         
         flash('Nesprávne prihlasovacie údaje!', 'danger')

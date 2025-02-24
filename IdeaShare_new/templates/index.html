@@ -18,10 +18,17 @@
             {% for category in categories %}
             <li><a href="{{ url_for('home', category=category.name) }}">{{ category.name }}</a></li>
             {% endfor %}
-            <li><a href="/add_idea"><i class="fas fa-plus-circle"></i> Add Idea</a></li>
-            {% if session.get('user_id') %}
-                <li><a href="{{ url_for('user_profile', user_id=session.get('user_id')) }}">Môj profil</a></li>
+            
+            
+            {% if session.get('is_admin') %}
+            <li><a href="{{ url_for('admin') }}">🔧 Admin Panel</a></li>
+            {% elif session.get('is_category_admin') %}
+            <li><a href="{{ url_for('manage_categories') }}">📂 Správa kategórií</a></li>
+            {% elif session.get('user_id') %}
+            <li><a href="{{ url_for('user_profile', user_id=session.get('user_id')) }}">Môj profil</a></li>
             {% endif %}
+            <li><a href="/add_idea"><i class="fas fa-plus-circle"></i> Add Idea</a></li>
+
         </ul>
     </aside>
 
