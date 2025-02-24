@@ -79,6 +79,7 @@ class CompletedIdea(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     idea_id = db.Column(db.Integer, db.ForeignKey('idea.id'), nullable=False)
     completion_link = db.Column(db.String(255), nullable=True)
+    completed_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     user = db.relationship('User', backref='completed_ideas')
     idea = db.relationship('Idea', back_populates='completed_ideas')  # Opravený vzťah

@@ -57,6 +57,7 @@
                 <ul>
                     {% for completion in idea.completed_ideas %}
                         <li>
+                            <span>{{ completion.completed_at.strftime('%d.%m.%Y') }} - </span>
                             <a href="{{ url_for('user_profile', user_id=completion.user_id) }}">{{ completion.user.username }}</a>
                             {% if completion.completion_link %}
                                 <a href="{{ completion.completion_link }}" target="_blank" class="completion-btn">Zobraziť</a>
