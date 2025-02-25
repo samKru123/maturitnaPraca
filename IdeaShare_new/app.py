@@ -4,6 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 from flask_migrate import Migrate
 from werkzeug.utils import secure_filename
+from werkzeug.security import generate_password_hash, check_password_hash
 
 
 
@@ -37,11 +38,18 @@ def allowed_file(filename):
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(100), unique=True, nullable=False)
-    password = db.Column(db.String(100), nullable=False)
+    password_hash = db.Column(db.String(255), nullable=False)
     is_admin = db.Column(db.Boolean, default=False)  # Len jeden môže mať True
     is_category_admin = db.Column(db.Boolean, default=False)
     is_blocked = db.Column(db.Boolean, default=False)  # Nový stĺpec pre blokovanie
     comments = db.relationship('Comment', backref='user', lazy=True, cascade="all, delete")
+
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
+
+    # Metóda na overenie hesla
+    def check_password(self, password):
+        return check_password_hash(self.password_hash, password)
 
 class Idea(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -90,7 +98,6 @@ class Category(db.Model):
     name = db.Column(db.String(100), unique=True, nullable=False)
 
 
-
 # Routes
 @app.route('/')
 def home():
@@ -99,14 +106,14 @@ def home():
     search_query = request.args.get('search', '')
 
     if selected_category:
-        ideas = Idea.query.filter(Idea.categories.contains(selected_category)).all()
+        ideas = Idea.query.filter(Idea.categories.contains(selected_category))
     else:
-        ideas = Idea.query.all()
+        ideas = Idea.query
 
     if search_query:
         ideas = ideas.filter(Idea.title.contains(search_query) | Idea.description.contains(search_query))
 
-    #ideas = ideas.all()
+    ideas = ideas.all()
     return render_template('index.html', ideas=ideas, categories=categories, selected_category=selected_category)
 
 
@@ -119,30 +126,42 @@ def register():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        user = User(username=username, password=password)
+
+        # Skontrolujeme, či užívateľ už existuje
+        existing_user = User.query.filter_by(username=username).first()
+        if existing_user:
+            flash('Používateľské meno už existuje!', 'danger')
+            return redirect(url_for('register'))
+
+        # Vytvoríme nového používateľa a nastavíme hashované heslo
+        user = User(username=username)
+        user.set_password(password)  # Používame našu metódu na hashovanie hesla
+
         db.session.add(user)
         db.session.commit()
-        flash('Registration successful!')
+        flash('Registrácia úspešná! Teraz sa môžete prihlásiť.', 'success')
         return redirect(url_for('login'))
+
     return render_template('register.html')
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        user = User.query.filter_by(username=username, password=password).first()
 
-        if user:
-            if user.is_blocked:
-                flash('Tento účet je zablokovaný!', 'danger')
-                return redirect(url_for('login'))
+        user = User.query.filter_by(username=username).first()
+
+        if user and user.check_password(password):  # Overenie hashovaného hesla
             session['user_id'] = user.id
             session['is_admin'] = user.is_admin
             session['is_category_admin'] = user.is_category_admin
+            flash('Úspešné prihlásenie!', 'success')
             return redirect(url_for('home'))
-        
-        flash('Nesprávne prihlasovacie údaje!', 'danger')
+        else:
+            flash('Nesprávne používateľské meno alebo heslo!', 'danger')
+
     return render_template('login.html')
 
 @app.route('/logout')
