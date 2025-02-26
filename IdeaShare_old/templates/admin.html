@@ -36,7 +36,7 @@
                         {% if user.is_blocked %}
                             <a href="{{ url_for('unblock_user', user_id=user.id) }}" class="btn btn-success">Odblokovať</a>
                         {% else %}
-                            <a href="{{ url_for('block_user', user_id=user.id) }}" class="btn btn-danger">Blokovať</a>
+                            <a href="{{ url_for('block_user', user_id=user.id) }}" class="btn btn-danger" style="max-width: fit-content;">Blokovať</a>
                         {% endif %}
                         <form action="{{ url_for('delete_user', user_id=user.id) }}" method="POST" onsubmit="return confirm('Naozaj chcete odstrániť tohto používateľa?');">
                             <button type="submit" class="btn btn-danger">Zmazať</button>
@@ -51,7 +51,7 @@
         <ul>
             {% for idea in ideas %}
                 <li>{{ idea.title }} - 
-                    <a href="{{ url_for('delete_idea', idea_id=idea.id) }}" class="btn btn-danger" onclick="return confirm('Naozaj chcete zmazať tento nápad?');">Zmazať</a>
+                    <a href="{{ url_for('delete_idea', idea_id=idea.id) }}" class="btn btn-danger" onclick="return confirm('Naozaj chcete zmazať tento nápad?');" style="max-width: fit-content;">Zmazať</a>
                 </li>
             {% endfor %}
         </ul>

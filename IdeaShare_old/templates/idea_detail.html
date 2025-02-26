@@ -14,10 +14,10 @@
         <p><strong>Kategórie:</strong> {{ idea.categories }}</p>
         <p class="idea-description">{{ idea.description }}</p>
 
-        {% if idea.image %}
-        <a href="{{ url_for('static', filename=idea.image.replace('static/', '')) }}" download>
-            <button class="btn btn-primary" style="max-width: 50px;">📥 Stiahnuť súbor</button>
-        </a>
+        {% if idea.file %}
+        <p>📄 Súbor: <a href="{{ url_for('download_file', filename=idea.file.replace('uploads/', '')) }}" download>
+        Stiahnuť súbor
+        </a></p>
         {% endif %}
     </div>
 
