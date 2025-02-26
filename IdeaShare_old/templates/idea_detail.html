@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/styles.css">
+    <title>{{ idea.title }}</title>
+</head>
+<body>
+
+    <!-- Sekcia s nápadom -->
+    <div class="idea-container">
+        <h1 class="idea-title">{{ idea.title }}</h1>
+        <p><strong>Kategórie:</strong> {{ idea.categories }}</p>
+        <p class="idea-description">{{ idea.description }}</p>
+
+        {% if idea.image %}
+            <img src="{{ idea.image }}" alt="Idea Image" class="idea-image">
+        {% else %}
+            <p class="no-image-text">Žiadny obrázok</p>
+        {% endif %}
+    </div>
+
+    <!-- Kontajner na tri sekcie pod nápadom -->
+    <div class="sections-container">
+        
+        <!-- Sekcia pracujúcich používateľov -->
+        <div class="section-box">
+
+            <h3>Na tomto nápade pracujú:</h3>
+            <form action="{{ url_for('work_on_idea', idea_id=idea.id) }}" method="post">
+                {% if session.get('user_id') and session.get('user_id') in idea.working_users | map(attribute='id') | list %}
+                    <button type="submit" class="btn btn-danger">Už na tom nepracujem</button>
+                {% else %}
+                    <button type="submit" class="btn btn-success">Pracujem na tomto nápade</button>
+                {% endif %}
+            </form>
+            <ul>
+                {% for user in idea.working_users %}
+                    <li><a href="{{ url_for('user_profile', user_id=user.id) }}">{{ user.username }}</a></li>
+                {% endfor %}
+            </ul>
+
+            
+        </div>
+
+        <!-- Dokončenie projektu -->
+        <div class="section-box">
+            <h3>Dokončenie projektu:</h3>
+            <form action="{% if session.get('user_id') in completed_user_ids %}{{ url_for('remove_completion', idea_id=idea.id) }}{% else %}{{ url_for('complete_idea', idea_id=idea.id) }}{% endif %}" method="post">
+                <input type="url" name="completion_link" placeholder="Vlož URL" class="form-control" {% if session.get('user_id') in completed_user_ids %}hidden{% endif %}>
+                <button type="submit" class="btn {% if session.get('user_id') in completed_user_ids %}btn-danger{% else %}btn-success{% endif %}">
+                    {% if session.get('user_id') in completed_user_ids %}
+                        ❌ Zrušiť dokončenie
+                    {% else %}
+                        ✅ Označiť ako dokončené
+                    {% endif %}
+                </button>
+            </form>
+            
+
+            {% if idea.completed_ideas %}
+                <h3>Dokončili:</h3>
+                <ul>
+                    {% for completion in idea.completed_ideas %}
+                        <li>
+                            <span>{{ completion.completed_at.strftime('%d.%m.%Y') }} - </span>
+                            <a href="{{ url_for('user_profile', user_id=completion.user_id) }}">{{ completion.user.username }}</a>
+                            {% if completion.completion_link %}
+                                <a href="{{ completion.completion_link }}" target="_blank" class="completion-btn">Zobraziť</a>
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+
+        <!-- Sekcia komentárov -->
+        <div class="section-box">
+            <h3>Komentáre</h3>
+            <div class="comments-div">
+            {% if comments %}
+                {% for comment in comments %}
+                    <div class="comment">
+                        <strong>{{ comment.user.username }}:</strong>
+                        <p>{{ comment.content }}</p>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <p>Zatiaľ žiadne komentáre.</p>
+            {% endif %}
+            </div>
+            
+            <form class="comment-form" method="POST" action="/idea/{{ idea.id }}/comment">
+                <textarea name="content" placeholder="Napíšte váš komentár..." rows="3"></textarea>
+                <button type="submit" class="btn btn-primary">Pridať komentár</button>
+            </form>
+        </div>
+        
+    </div>
+
+    <!-- Odkaz späť na hlavnú stránku -->
+     <div>
+    <a href="{{ url_for('home') }}" class="btn">Späť na hlavnú stránku</a>
+    {% if session.get('user_id') == idea.user_id %}
+    <a href="{{ url_for('edit_own_idea', idea_id=idea.id) }}" class="btn btn-warning">Upraviť</a>
+    <form action="{{ url_for('delete_own_idea', idea_id=idea.id) }}" method="POST" style="display:inline;">
+        <button type="submit" class="btn btn-danger" onclick="return confirm('Naozaj chcete zmazať tento nápad?');">Zmazať</button>
+    </form>
+{% endif %}
+</div>
+
+</body>
+</html>

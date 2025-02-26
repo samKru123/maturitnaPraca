@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="sk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/styles.css">
+    <title>Správa kategórií</title>
+</head>
+<body>
+    <div class="admin-container">
+        <h1>Správa kategórií</h1>
+
+        <form method="POST" action="{{ url_for('manage_categories') }}">
+            <input type="text" name="category_name" placeholder="Zadajte názov kategórie" required>
+            <button type="submit" class="btn btn-success">Pridať kategóriu</button>
+        </form>
+
+        <h2>Existujúce kategórie</h2>
+        <ul>
+            {% for category in categories %}
+            <li>
+                {{ category.name }}
+                <form action="{{ url_for('delete_category', category_id=category.id) }}" method="POST" style="display:inline;">
+                    <button type="submit" class="btn btn-danger">Odstrániť</button>
+                </form>
+            </li>
+            {% endfor %}
+        </ul>
+
+        
+    </div>
+    <div>
+        <a href="{{ url_for('home') }}" class="btn">Späť na hlavnú stránku</a>
+    </div>
+</body>
+</html>
