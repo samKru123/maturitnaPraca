@@ -15,9 +15,9 @@
         <p class="idea-description">{{ idea.description }}</p>
 
         {% if idea.image %}
-            <img src="{{ idea.image }}" alt="Idea Image" class="idea-image">
-        {% else %}
-            <p class="no-image-text">Žiadny obrázok</p>
+        <a href="{{ url_for('static', filename=idea.image.replace('static/', '')) }}" download>
+            <button class="btn btn-primary" style="max-width: 50px;">📥 Stiahnuť súbor</button>
+        </a>
         {% endif %}
     </div>
 

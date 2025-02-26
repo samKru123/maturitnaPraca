@@ -5,6 +5,7 @@ from datetime import datetime
 from flask_migrate import Migrate
 from werkzeug.utils import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
+from flask import send_from_directory
 
 
 app = Flask(__name__)
@@ -18,7 +19,12 @@ migrate = Migrate(app, db)
 CATEGORIES = ["Programovanie", "Elektrotechnika", "Siete", "Iné"]
 
 UPLOAD_FOLDER = 'static/uploads'
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'txt', 'pdf', 'docx', 'xlsx', 'csv', 'zip', 'mp4', 'mp3'}
+
+if not os.path.exists(app.config['UPLOAD_FOLDER']):
+    os.makedirs(app.config['UPLOAD_FOLDER'])
 
 working_on = db.Table('working_on',
     db.Column('user_id', db.Integer, db.ForeignKey('user.id'), primary_key=True),
@@ -26,7 +32,7 @@ working_on = db.Table('working_on',
 )
 
 
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
 
 # Funkcia na kontrolu správneho formátu súboru
 def allowed_file(filename):
@@ -170,15 +176,15 @@ def add_idea():
         user_id = session['user_id']
         image_path = None
 
-        if 'image' in request.files:
+        if 'image' in request.files and request.files['image'].filename != '':
             file = request.files['image']
-            if file and allowed_file(file.filename):
+            if file and allowed_file(file.filename):  
                 filename = secure_filename(file.filename)
                 file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
                 file.save(file_path)
-                image_path = f'IdeaShare_1/static/uploads/{filename}'
+                image_path = f'static/uploads/{filename}'
 
-        # Uloží kategórie ako reťazec oddelený čiarkami
+        
         new_idea = Idea(title=title, description=description, user_id=user_id, categories=",".join(selected_categories), image=image_path)
 
         db.session.add(new_idea)
@@ -451,9 +457,8 @@ def edit_own_idea(idea_id):
 
     idea = Idea.query.get_or_404(idea_id)
 
-    # Skontrolujeme, či používateľ je vlastníkom nápadu
+    
     if session['user_id'] != idea.user_id:
-        flash("Nemôžete upraviť nápad, ktorý vám nepatrí!", "danger")
         return redirect(url_for('home'))
 
     if request.method == 'POST':
@@ -461,11 +466,10 @@ def edit_own_idea(idea_id):
         idea.description = request.form['description']
         selected_categories = request.form.getlist('categories')
         
-        # Aktualizácia kategórií
+        
         idea.categories = ",".join(selected_categories)
 
         db.session.commit()
-        flash("Nápad bol úspešne upravený!", "success")
         return redirect(url_for('idea_detail', idea_id=idea.id))
 
     categories = Category.query.all()
@@ -475,7 +479,6 @@ def edit_own_idea(idea_id):
 @app.route('/idea/<int:idea_id>/remove_completion', methods=['POST'])
 def remove_completion(idea_id):
     if 'user_id' not in session:
-        flash('Musíte byť prihlásený na zrušenie dokončenia nápadu.', 'danger')
         return redirect(url_for('login'))
 
     user_id = session['user_id']
@@ -484,12 +487,12 @@ def remove_completion(idea_id):
     if completed_idea:
         db.session.delete(completed_idea)
         db.session.commit()
-        flash('Zrušili ste dokončenie nápadu.', 'success')
-    else:
-        flash('Nemôžete zrušiť dokončenie, pretože ste ho neoznačili ako dokončené.', 'warning')
 
     return redirect(url_for('idea_detail', idea_id=idea_id))
 
+@app.route('/download/<path:filename>')
+def download_file(filename):
+    return send_from_directory('static/uploads', filename, as_attachment=True)
 
 if __name__ == '__main__':
     with app.app_context():
