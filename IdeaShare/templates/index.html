@@ -1,0 +1,85 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IdeaShare</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside>
+        <ul>
+            <li><a href="/" {% if not selected_category %}class="active"{% endif %}><i class="fas fa-lightbulb"></i> Všetky nápady</a></li>
+            {% for category in categories %}
+            <li><a href="{{ url_for('home', category=category.name) }}">{{ category.name }}</a></li>
+            {% endfor %}
+            
+            
+            {% if session.get('is_admin') %}
+            <li><a href="{{ url_for('admin') }}">🔧 Admin Panel</a></li>
+            {% elif session.get('is_category_admin') %}
+            <li><a href="{{ url_for('manage_categories') }}">📂 Správa kategórií</a></li>
+            {% elif session.get('user_id') %}
+            <li><a href="{{ url_for('user_profile', user_id=session.get('user_id')) }}">Môj profil</a></li>
+            {% endif %}
+            <li><a href="/add_idea"><i class="fas fa-plus-circle"></i> Pridať nápad</a></li>
+
+        </ul>
+    </aside>
+
+    <!-- Hlavička -->
+    <header>
+        {% if session.get('user_id') %}
+        <a href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+        {% else %}
+        <a href="/login"><i class="fas fa-sign-in-alt"></i> Login</a> |
+        <a href="/register"><i class="fas fa-user-plus"></i> Register</a>
+        {% endif %}
+    </header>
+
+    
+    <!-- Aktuálna kategória -->
+    {% if selected_category %}
+    <div class="current-category">
+        Current Category: {{ selected_category }}
+    </div>
+    {% endif %}
+
+    <!-- Searchbar -->
+    
+
+    <!-- Hlavný obsah -->
+    <main>
+        <div class="searchbar">
+            <form method="GET">
+                <input type="text" name="search" placeholder="Search ideas..." value="{{ request.args.get('search', '') }}">
+                {% if selected_category %}
+                    <input type="hidden" name="category" value="{{ selected_category }}">
+                {% endif %}
+                <button type="submit"><i class="fas fa-search"></i></button>
+            </form>
+        </div>
+    
+        <ul>
+            {% if ideas %}
+            {% for idea in ideas %}
+            <li>
+                <h3><a href="{{ url_for('idea_detail', idea_id=idea.id) }}">{{ idea.title }}</a></h3>
+                <p><strong>Kategorie:</strong> {{ idea.categories }}</p>
+                <p>{{ idea.description }}</p>
+                
+                <form action="{{ url_for('upvote_idea', idea_id=idea.id) }}" method="POST" style="display: inline;">
+                    <button type="submit" class="upvote-btn">👍 Upvote ({{ idea.upvotes }})</button>
+                </form>
+            </li>
+            {% endfor %}
+            {% endif %}
+        </ul>
+    </main>
+</body>
+</html>
