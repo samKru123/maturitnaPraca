@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
-    <!-- Sidebar -->
+    
     <aside>
         <ul>
             <li><a href="/" {% if not selected_category %}class="active"{% endif %}><i class="fas fa-lightbulb"></i> Všetky nápady</a></li>
@@ -32,7 +32,7 @@
         </ul>
     </aside>
 
-    <!-- Hlavička -->
+   
     <header>
         {% if session.get('user_id') %}
         <a href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
@@ -43,17 +43,14 @@
     </header>
 
     
-    <!-- Aktuálna kategória -->
+    
     {% if selected_category %}
     <div class="current-category">
         Current Category: {{ selected_category }}
     </div>
     {% endif %}
 
-    <!-- Searchbar -->
     
-
-    <!-- Hlavný obsah -->
     <main>
         <div class="searchbar">
             <form method="GET">
